@@ -1,5 +1,5 @@
 #include <GLFW/glfw3.h>
-
+#include <iostream>
 
 int main(void)
 {
@@ -28,15 +28,13 @@ int main(void)
 
 		glBegin(GL_TRIANGLES);
 		//two triangles 
-
 		glVertex2d(-0.5f, -0.5f);
 		glVertex2d(-0.5f, 0.5f);
 		glVertex2d(0.5f, -0.5f);
+
 		glVertex2d(-0.5f, 0.5f);
 		glVertex2d(0.5f, 0.5f);
 		glVertex2d(0.5f, -0.5f);
-
-
 
 		glEnd();
 
