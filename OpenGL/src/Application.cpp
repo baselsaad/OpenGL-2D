@@ -1,7 +1,6 @@
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-
-#include "Timer.h"
 
 
 void DrawQuad()
@@ -25,7 +24,7 @@ void DrawTriangle()
 	glEnd();
 }
 
-int main(void)
+int main()
 {
 	GLFWwindow* window;
 
@@ -34,16 +33,20 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(800, 600, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	//glewInit should be called after a valid OpenGL rendering context has been created
+	int state = glewInit();
+
+	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
