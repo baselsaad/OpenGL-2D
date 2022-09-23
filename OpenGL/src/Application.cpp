@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+//https://docs.gl/
 
 int main()
 {
@@ -21,12 +22,9 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-	//glewInit should be called after a valid OpenGL rendering context has been created
-	GLenum state = glewInit();
-	// GPU driver and OpenGL Information
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	glfwMakeContextCurrent(window);// Make the window's context current 
+	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
+	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
 
 
 	float positions[6]
@@ -35,27 +33,14 @@ int main()
 		 0.5f,-0.5f,
 		 0.0f, 0.5f
 	};
-
 	unsigned int buffer;
-	/*
-	*	n		-	Specifies the number of buffer object names to be generated.
-	*	buffer	-	Specifies the name of a buffer object.
-	*/
+
 	glGenBuffers(1, &buffer);
-
-	/*
-	*	target - to which the buffer object is bound
-	*	buffer - Specifies the name of a buffer object.
-	*/
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-
-	/*
-	*	target - to which the buffer object is bound
-	*	size   - Specifies the size in bytes of the buffer object's new data store.
-	*	data   - Specifies a pointer to data that will be copied into the data store for initialization, or NULL if no data is to be copied.
-	*   usage  - Specifies the expected usage pattern of the data store
-	*/
 	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
