@@ -6,6 +6,56 @@
 
 //https://docs.gl/
 
+
+static uint32_t CompileShader(uint32_t type, const std::string& source)
+{
+	uint32_t id = glCreateShader(type);
+	const char* src = source.c_str();
+	const int HOW_MANY_SHADERS = 1;
+	glShaderSource(id, HOW_MANY_SHADERS, &src, NULL);//Replaces the source code in a shader object
+	glCompileShader(id);
+
+	//Compile Error Handling
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE)
+	{
+		int length;
+		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(id, length, &length, message);
+
+		std::cout << "Shader Compile Error in " << (type == GL_FRAGMENT_SHADER ? "fragment Shader: " : "vertex Shader: ") << std::endl;
+		std::cout << message;
+		glDeleteShader(id);
+
+		return 0;
+	}
+
+
+	return id;
+}
+
+static uint32_t CreateShader(const std::string& fragmentShader, const std::string& vertexShader)
+{
+	// creates an empty program object, is an object to which shader objects can be attached
+	uint32_t programm = glCreateProgram();
+
+	uint32_t fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+	uint32_t vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+
+	glAttachShader(programm, fs);
+	glAttachShader(programm, vs);
+
+	glLinkProgram(programm);//links any attached shader to program
+	glValidateProgram(programm); // checks, if can execute given the current OpenGL state
+
+	glDeleteShader(fs);
+	glDeleteShader(vs);
+
+	return programm;
+}
+
 int main()
 {
 	/* Initialize the library */
@@ -29,36 +79,63 @@ int main()
 
 	float positions[6]
 	{
-		-0.5f,-0.5f,
-		 0.5f,-0.5f,
-		 0.0f, 0.5f
+		-0.5f , -0.5f,
+		 0.5f , -0.5f,
+		 0.0f ,  0.5f
 	};
-	unsigned int buffer;
 
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	uint32_t bufferName;
+	int numberOfBuffers = 1;
+	glGenBuffers(numberOfBuffers, &bufferName);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferName);
 	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(0);
+	/* tell OpenGL how to read vertexBuffer
+	 * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
+	*/
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+	glEnableVertexAttribArray(0);//should be called for glVertexAttribPointer
+
+	std::string vertexShader =
+		"#version 330 core\n"
+		"\n"
+		"layout(location = 0) in vec4 position;"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	gl_Position = position;\n"
+		"}\n";
+
+	std::string fragmentShader =
+		"#version 330 core\n"
+		"\n"
+		"layout(location = 0) out vec4 color;"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	color = vec4(0.0f, 1.0f, 1.0f, 1.0f);\n"
+		"}\n";
+
+	uint32_t shader = CreateShader(fragmentShader, vertexShader);
+	glUseProgram(shader);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		// because we generate and bind the buffer outside the loop, OpenGL works like state-machine, so it knows which buffer should be drawn
+		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glfwSwapBuffers(window);//Swap front and back buffers
 
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
 
+
 	// free allocated
+	glDeleteShader(shader);
 	glfwTerminate();
 	return 0;
 }
