@@ -171,6 +171,7 @@
     <None Include="Dependencies\GLEW\doc\install.html" />
     <None Include="Dependencies\GLEW\doc\log.html" />
     <None Include="Dependencies\GLEW\doc\wglew.html" />
+    <None Include="res\shaders\Basic.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
