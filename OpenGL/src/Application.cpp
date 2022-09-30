@@ -19,6 +19,7 @@ struct Shaders
 static Shaders ParaseShader(const std::string& filePath)
 {
 	std::ifstream stream(filePath);
+	stream.open(filePath, std::ios_base::out);
 
 	enum class ParsingState
 	{
@@ -44,6 +45,7 @@ static Shaders ParaseShader(const std::string& filePath)
 		}
 	}
 
+	stream.close();
 	return { source[0].str(),source[1].str() };
 }
 
