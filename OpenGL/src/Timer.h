@@ -10,9 +10,9 @@ public:
 
 	void StartTimer() const;
 
-	__forceinline float ElapsedTimeInMili() const { return Timer::m_ElapsedTime; }
+	__forceinline float ElapsedTimeInMili() const { return m_ElapsedTime; }
 
-	__forceinline float ElapsedTimeInSecound() const { return Timer::m_ElapsedTime / 1000.0f; }
+	__forceinline float ElapsedTimeInSecound() const { return m_ElapsedTime / 1000.0f; }
 
 	void StopTimer() const;
 
