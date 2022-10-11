@@ -180,9 +180,9 @@ int main()
 	 // Vertex-Buffer
 	uint32_t bufferName;
 	int numberOfBuffers = 1;
-	glGenBuffers(numberOfBuffers, &bufferName);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferName);
-	glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(float), positions, GL_STATIC_DRAW);
+	GL_CALL(glGenBuffers(numberOfBuffers, &bufferName));
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, bufferName));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(float), positions, GL_STATIC_DRAW));
 
 	/* tell OpenGL how to read vertexBuffer
 	 * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
@@ -192,14 +192,14 @@ int main()
 
 	// Index-Buffer
 	uint32_t indexBuffer;
-	glGenBuffers(numberOfBuffers, &indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	GL_CALL(glGenBuffers(numberOfBuffers, &indexBuffer));
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW));
 
 	// Shaders
 	Shaders shadersSource = ParaseShader("res/shaders/Basic.shader");
 	uint32_t programm = CreateShader(shadersSource.FragmentShader, shadersSource.VertexShader);
-	glUseProgram(programm);
+	GL_CALL(glUseProgram(programm));
 
 
 	/* Loop until the user closes the window */
