@@ -8,6 +8,40 @@
 #include <string>
 #include <sstream>
 
+#define ASSERT(x) if (!(x)) __debugbreak();
+
+#define GL_CALL(x)			\
+	GlClearErros();			\
+	x;						\
+	ASSERT(GlLogCall(#x, __FILE__, __LINE__))
+
+static void GlClearErros()
+{
+	while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GlLogCall(const char* functionName, const char* fileName, int line)
+{
+	while (GLenum error = glGetError())
+	{
+		std::cout << fileName << ": " << functionName << " at Line (" << line << ")" << std::endl;
+		printf("OpenGL-Error: %.6x (%d)", error, error);
+
+		return false;
+	}
+
+
+	return true;
+}
+
+static void Callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length
+	, const GLchar* message, const void* userParam)
+{
+#if 0
+	std::cout << "Error: " << message << std::endl;
+	__debugbreak();
+#endif
+}
 
 struct Shaders
 {
@@ -103,6 +137,7 @@ int main()
 		return -1;
 	}
 
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); //should be called for glDebugMessageCallback
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
 	if (!window)
@@ -114,8 +149,8 @@ int main()
 	glfwMakeContextCurrent(window);// Make the window's context current 
 	glfwSwapInterval(true); // vsync
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
+	glDebugMessageCallback(Callback, nullptr);
 	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
-
 	// Each "Line" for X , Y 
 	float positions[8] =
 	{
@@ -142,7 +177,7 @@ int main()
 	 * 				0 * * * * * * * * * * * 1
 	 **************************************************/
 
-	// Vertex-Buffer
+	 // Vertex-Buffer
 	uint32_t bufferName;
 	int numberOfBuffers = 1;
 	glGenBuffers(numberOfBuffers, &bufferName);
@@ -174,7 +209,7 @@ int main()
 
 		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, nullptr);
+		GL_CALL(glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, nullptr));
 
 		glfwSwapBuffers(window);//Swap front and back buffers
 
