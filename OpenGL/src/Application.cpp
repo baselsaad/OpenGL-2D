@@ -84,22 +84,22 @@ static uint32_t CompileShader(uint32_t type, const std::string& source)
 	uint32_t id = glCreateShader(type);
 	const char* src = source.c_str();
 	const int HOW_MANY_SHADERS = 1;
-	glShaderSource(id, HOW_MANY_SHADERS, &src, NULL);//Replaces the source code in a shader object
-	glCompileShader(id);
+	GL_CALL(glShaderSource(id, HOW_MANY_SHADERS, &src, NULL));//Replaces the source code in a shader object
+	GL_CALL(glCompileShader(id));
 
 	//Compile Error Handling
 	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	GL_CALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
 	if (result == GL_FALSE)
 	{
 		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		GL_CALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
 		char* message = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(id, length, &length, message);
+		GL_CALL(glGetShaderInfoLog(id, length, &length, message));
 
 		std::cout << "Shader Compile Error in " << (type == GL_FRAGMENT_SHADER ? "fragment Shader: " : "vertex Shader: ") << std::endl;
 		std::cout << message;
-		glDeleteShader(id);
+		GL_CALL(glDeleteShader(id));
 
 		return 0;
 	}
@@ -117,14 +117,14 @@ static uint32_t CreateShader(const std::string& fragmentShader, const std::strin
 	uint32_t fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 	uint32_t vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 
-	glAttachShader(programm, fs);
-	glAttachShader(programm, vs);
+	GL_CALL(glAttachShader(programm, fs));
+	GL_CALL(glAttachShader(programm, vs));
 
-	glLinkProgram(programm);//links any attached shader to program
-	glValidateProgram(programm); // checks, if can execute given the current OpenGL state
+	GL_CALL(glLinkProgram(programm));//links any attached shader to program
+	GL_CALL(glValidateProgram(programm)); // checks, if can execute given the current OpenGL state
 
-	glDeleteShader(fs);
-	glDeleteShader(vs);
+	GL_CALL(glDeleteShader(fs));
+	GL_CALL(glDeleteShader(vs));
 
 	return programm;
 }
@@ -149,8 +149,10 @@ int main()
 	glfwMakeContextCurrent(window);// Make the window's context current 
 	glfwSwapInterval(true); // vsync
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
-	glDebugMessageCallback(Callback, nullptr);
+
+	GL_CALL(glDebugMessageCallback(Callback, nullptr));
 	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
+
 	// Each "Line" for X , Y 
 	float positions[8] =
 	{
@@ -199,26 +201,37 @@ int main()
 	// Shaders
 	Shaders shadersSource = ParaseShader("res/shaders/Basic.shader");
 	uint32_t programm = CreateShader(shadersSource.FragmentShader, shadersSource.VertexShader);
-	GL_CALL(glUseProgram(programm));
+	GL_CALL(glUseProgram(programm)); //bind shaders
 
+	GL_CALL(int location = glGetUniformLocation(programm, "u_Color"));
+	ASSERT(location != -1);
+	GL_CALL(glUniform4f(location, 1.0f, 0.5f, 0.0f, 1.0f));
+	float r = 0.0f;
+	float increamnt = 0.03f;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
 		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		GL_CALL(glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, nullptr));
+		GL_CALL(glUniform4f(location, r, 0.5f, 0.0f, 1.0f));
 
-		glfwSwapBuffers(window);//Swap front and back buffers
+		if (r > 1.0f || r < 0.0f)
+			increamnt *= -1;
+
+		r += increamnt;
+
+		GL_CALL(glfwSwapBuffers(window));//Swap front and back buffers
 
 		/* Poll for and process events */
-		glfwPollEvents();
+		GL_CALL(glfwPollEvents());
 	}
 
 
-	glDeleteProgram(programm);
+	GL_CALL(glDeleteProgram(programm));
 
 	glfwTerminate();
 	return 0;
