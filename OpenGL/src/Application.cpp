@@ -3,6 +3,8 @@
 #include "Renderer.h"
 #include "VertextBuffer.h"
 #include "IndexBuffer.h"
+#include "Colors.h"
+#include "Timer.h"
 
 #include <fstream>
 #include <string>
@@ -146,9 +148,9 @@ int main()
 	 **************************************************/
 
 
-	/* tell OpenGL how to read vertexBuffer
-	 * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
-	*/
+	 /* tell OpenGL how to read vertexBuffer
+	  * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
+	 */
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 	glEnableVertexAttribArray(0);//should be called for glVertexAttribPointer
 
@@ -159,26 +161,40 @@ int main()
 
 	GL_CALL(int location = glGetUniformLocation(programm, "u_Color"));
 	ASSERT(location != -1);
-	GL_CALL(glUniform4f(location, 1.0f, 0.5f, 0.0f, 1.0f));
-	float r = 0.0f;
-	float increamnt = 0.03f;
+
+	int increamnt = 0;
+	Colors::RGBA color(Colors::ColorsArray.at(increamnt));
+	GL_CALL(glUniform4f(location, color.R, color.G, color.B, color.Alpha));
+
+
+	
+	std::function<void()> callbackLambda = [&color, &increamnt, programm, location]()
+	{
+		increamnt++;
+		if (increamnt >= Colors::ColorsArray.size())
+		{
+			increamnt = 0;
+		}
+
+		color = Colors::ColorsArray.at(increamnt);
+		GL_CALL(glUseProgram(programm)); // bind shaders
+		GL_CALL(glUniform4f(location, color.R, color.G, color.B, color.Alpha));
+	};
+
+	Timer timer;
+	timer.SetCallBackTimer(0.3f, callbackLambda);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
-		GL_CALL(glUseProgram(programm)); //bind shaders
-		GL_CALL(glUniform4f(location, r, 0.5f, 0.0f, 1.0f));
+		for (auto& tm : timer.CallbacksVec)
+			tm.Update();
 
 		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 		indexBuffer->Bind();
 		GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-
-		if (r > 1.0f || r < 0.0f)
-			increamnt *= -1;
-
-		r += increamnt;
 
 		GL_CALL(glfwSwapBuffers(window));//Swap front and back buffers
 
