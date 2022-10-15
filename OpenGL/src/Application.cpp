@@ -1,47 +1,12 @@
 // https://docs.gl/
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "Renderer.h"
+#include "VertextBuffer.h"
+#include "IndexBuffer.h"
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
-
-#define ASSERT(x) if (!(x)) __debugbreak();
-
-#define GL_CALL(x)			\
-	GlClearErros();			\
-	x;						\
-	ASSERT(GlLogCall(#x, __FILE__, __LINE__))
-
-static void GlClearErros()
-{
-	while (glGetError() != GL_NO_ERROR);
-}
-
-static bool GlLogCall(const char* functionName, const char* fileName, int line)
-{
-	while (GLenum error = glGetError())
-	{
-		std::cout << fileName << ": " << functionName << " at Line (" << line << ")" << std::endl;
-		printf("OpenGL-Error: %.6x (%d)", error, error);
-
-		return false;
-	}
-
-
-	return true;
-}
-
-static void Callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length
-	, const GLchar* message, const void* userParam)
-{
-#if 0
-	std::cout << "Error: " << message << std::endl;
-	__debugbreak();
-#endif
-}
 
 struct Shaders
 {
@@ -154,20 +119,21 @@ int main()
 	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
 
 	// Each "Line" for X , Y 
-	float positions[8] =
+	float positions[2 * 4] =
 	{
-		-0.5f , -0.5f, // 0 bottom_left
+		-0.5f , -0.5f, // 0 bottom_left 
 		 0.5f , -0.5f, // 1 bottom_right
 		 0.5f ,  0.5f, // 2 top_right
 		-0.5f ,  0.5f  // 3 top_left
 	};
+	VertexBuffer* vertextBuffer = new VertexBuffer(positions, 2 * 4 * sizeof(float));
 
-	const int indicesSize = 6;
-	uint32_t indices[indicesSize] =
+	uint32_t indices[6] =
 	{
 		0, 1, 2,
 		2, 3, 0
 	};
+	IndexBuffer* indexBuffer = new IndexBuffer(indices, 6);
 
 	/**************************************************
 	 *				3 * * * * * * * * * * * 2
@@ -179,24 +145,12 @@ int main()
 	 * 				0 * * * * * * * * * * * 1
 	 **************************************************/
 
-	 // Vertex-Buffer
-	uint32_t bufferName;
-	int numberOfBuffers = 1;
-	GL_CALL(glGenBuffers(numberOfBuffers, &bufferName));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, bufferName));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(float), positions, GL_STATIC_DRAW));
 
 	/* tell OpenGL how to read vertexBuffer
 	 * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
 	*/
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 	glEnableVertexAttribArray(0);//should be called for glVertexAttribPointer
-
-	// Index-Buffer
-	uint32_t indexBuffer;
-	GL_CALL(glGenBuffers(numberOfBuffers, &indexBuffer));
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW));
 
 	// Shaders
 	Shaders shadersSource = ParaseShader("res/shaders/Basic.shader");
@@ -214,10 +168,12 @@ int main()
 	{
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
-		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		GL_CALL(glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, nullptr));
+		GL_CALL(glUseProgram(programm)); //bind shaders
 		GL_CALL(glUniform4f(location, r, 0.5f, 0.0f, 1.0f));
+
+		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
+		indexBuffer->Bind();
+		GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		if (r > 1.0f || r < 0.0f)
 			increamnt *= -1;
@@ -230,9 +186,11 @@ int main()
 		GL_CALL(glfwPollEvents());
 	}
 
-
 	GL_CALL(glDeleteProgram(programm));
-
+	// should be delete before glfwTerminate
+	delete indexBuffer;
+	delete vertextBuffer;
 	glfwTerminate();
+
 	return 0;
 }

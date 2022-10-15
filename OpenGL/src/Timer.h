@@ -2,7 +2,8 @@
 #include <chrono>
 
 
-class Timer {
+class Timer 
+{
 
 public:
 
