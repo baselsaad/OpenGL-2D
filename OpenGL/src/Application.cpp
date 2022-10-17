@@ -1,8 +1,10 @@
 // https://docs.gl/
 
-#include "Renderer.h"
-#include "VertextBuffer.h"
-#include "IndexBuffer.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/VertextBuffer.h"
+#include "Renderer/IndexBuffer.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexBufferLayout.h"
 #include "Colors.h"
 #include "Timer.h"
 
@@ -104,7 +106,9 @@ int main()
 		return -1;
 	}
 
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); //should be called for glDebugMessageCallback
+	//should be called for glDebugMessageCallback
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
 	if (!window)
@@ -128,7 +132,13 @@ int main()
 		 0.5f ,  0.5f, // 2 top_right
 		-0.5f ,  0.5f  // 3 top_left
 	};
-	VertexBuffer* vertextBuffer = new VertexBuffer(positions, 2 * 4 * sizeof(float));
+
+	VertexArray va;
+	VertexBuffer* vertexBuffer = new VertexBuffer(positions, 2 * 4 * sizeof(float));
+	
+	VertexBufferLayout layout;
+	layout.Push<float>(2);
+	va.AddBuffer(*vertexBuffer, layout);
 
 	uint32_t indices[6] =
 	{
@@ -147,28 +157,19 @@ int main()
 	 * 				0 * * * * * * * * * * * 1
 	 **************************************************/
 
-
-	 /* tell OpenGL how to read vertexBuffer
-	  * (index, size_of_values_per_vertex, type, if_values_are_normlized, offset_between_vertecis, offset_of_attribute)
-	 */
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-	glEnableVertexAttribArray(0);//should be called for glVertexAttribPointer
-
 	// Shaders
 	Shaders shadersSource = ParaseShader("res/shaders/Basic.shader");
-	uint32_t programm = CreateShader(shadersSource.FragmentShader, shadersSource.VertexShader);
-	GL_CALL(glUseProgram(programm)); //bind shaders
+	uint32_t shader = CreateShader(shadersSource.FragmentShader, shadersSource.VertexShader);
+	GL_CALL(glUseProgram(shader)); //bind shaders
 
-	GL_CALL(int location = glGetUniformLocation(programm, "u_Color"));
+	GL_CALL(int location = glGetUniformLocation(shader, "u_Color"));
 	ASSERT(location != -1);
 
 	int increamnt = 0;
 	Colors::RGBA color(Colors::ColorsArray.at(increamnt));
 	GL_CALL(glUniform4f(location, color.R, color.G, color.B, color.Alpha));
 
-
-	
-	std::function<void()> callbackLambda = [&color, &increamnt, programm, location]()
+	Timer::Lambda callbackLambda = [&color, &increamnt, shader, location]()
 	{
 		increamnt++;
 		if (increamnt >= Colors::ColorsArray.size())
@@ -177,12 +178,12 @@ int main()
 		}
 
 		color = Colors::ColorsArray.at(increamnt);
-		GL_CALL(glUseProgram(programm)); // bind shaders
+		GL_CALL(glUseProgram(shader)); // bind shaders
 		GL_CALL(glUniform4f(location, color.R, color.G, color.B, color.Alpha));
 	};
 
 	Timer timer;
-	timer.SetCallBackTimer(0.3f, callbackLambda);
+	timer.SetCallBackTimer(1.0f, callbackLambda);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -194,6 +195,7 @@ int main()
 
 		// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 		indexBuffer->Bind();
+
 		GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		GL_CALL(glfwSwapBuffers(window));//Swap front and back buffers
@@ -202,11 +204,11 @@ int main()
 		GL_CALL(glfwPollEvents());
 	}
 
-	GL_CALL(glDeleteProgram(programm));
+	GL_CALL(glDeleteProgram(shader));
 	// should be delete before glfwTerminate
 	delete indexBuffer;
-	delete vertextBuffer;
+	delete vertexBuffer;
 	glfwTerminate();
 
-	return 0;
+	exit(0);
 }

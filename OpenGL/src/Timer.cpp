@@ -31,7 +31,7 @@ void Timer::StopTimer() const
 	}
 }
 
-int Timer::SetCallBackTimer(float rate, Lambda& callback)
+int Timer::SetCallBackTimer(float rate, const Lambda& callback)
 {
 	if (CallbacksVec.size() >= MAX_SIZE)
 	{

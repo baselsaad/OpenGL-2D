@@ -1,7 +1,7 @@
 #pragma once
 #include <chrono>
 #include <functional>
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
 
 class Timer
@@ -33,7 +33,7 @@ public:
 			if (currentRate >= Rate)
 			{
 				CallBack();
-				StartTime = std::chrono::high_resolution_clock::now();
+				StartTime = std::chrono::high_resolution_clock::now();// set new Timer
 			}
 		}
 
@@ -46,7 +46,12 @@ public:
 	inline float ElapsedTimeInSecound() const { return m_ElapsedTime / 1000.0f; }
 	inline double GetTime() { return glfwGetTime(); }
 
-	int SetCallBackTimer(float rate, Lambda& callback);
+	//************************************
+	// Parameter: rate		- updateRate in Sec
+	// Parameter: callback	- callback function 
+	//************************************
+	int SetCallBackTimer(float rate,const Lambda& callback);
+
 	void ClearCallBackTimer(int id);
 
 public:
