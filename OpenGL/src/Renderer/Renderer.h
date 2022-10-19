@@ -1,40 +1,29 @@
 #pragma once
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 
-#define ASSERT(x) if (!(x)) __debugbreak();
+class VertexArray;
+class IndexBuffer;
+class Shader;
+struct GLFWwindow;
 
-#define GL_CALL(x)									\
-	GlClearErros();									\
-	x;												\
-	ASSERT(GlLogCall(#x, __FILE__, __LINE__))
-
-static void GlClearErros()
+class Renderer
 {
-	while (glGetError() != GL_NO_ERROR);
-}
+public:
+	Renderer(GLFWwindow* window);
 
-static bool GlLogCall(const char* functionName, const char* fileName, int line)
-{
-	while (GLenum error = glGetError())
-	{
-		std::cout << fileName << ": " << functionName << " at Line (" << line << ")" << std::endl;
-		printf("OpenGL-Error: %.6x (%d)", error, error);
+public:
+	void Draw(const VertexArray& vb, const IndexBuffer& ib, const Shader& shader) const;
+	void Clear() const;
 
-		return false;
-	}
+	void Swap() const;
+
+private:
+	GLFWwindow* m_WindowHandle;
+};
 
 
-	return true;
-}
 
-static void Callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length
-	, const GLchar* message, const void* userParam)
-{
-#if 0
-	std::cout << "Error: " << message << std::endl;
-	__debugbreak();
-#endif
-}
+
+
+

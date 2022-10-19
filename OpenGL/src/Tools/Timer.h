@@ -50,7 +50,7 @@ public:
 	// Parameter: rate		- updateRate in Sec
 	// Parameter: callback	- callback function 
 	//************************************
-	int SetCallBackTimer(float rate,const Lambda& callback);
+	size_t SetCallBackTimer(float rate,const Lambda& callback);
 
 	void ClearCallBackTimer(int id);
 

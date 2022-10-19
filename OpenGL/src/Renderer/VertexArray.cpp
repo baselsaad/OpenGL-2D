@@ -1,8 +1,9 @@
 #include "VertexArray.h"
 
-#include "Renderer.h"
-#include "VertextBuffer.h"
+#include "Debug.h"
+#include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
+
 
 VertexArray::VertexArray()
 {
@@ -22,7 +23,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
 	const auto& elements = layout.GetElements();
 	uint32_t offset = 0;
 
-	for (size_t i = 0; i < elements.size(); i++)
+	for (uint32_t i = 0; i < elements.size(); i++)
 	{
 		const auto& element = elements[i];
 
