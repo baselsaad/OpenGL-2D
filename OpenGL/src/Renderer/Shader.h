@@ -19,6 +19,8 @@ public:
 	void Bind() const;
 	void UnBind() const;
 
+	void SetUniform1i(const char* name, int v0);
+	void SetUniform1f(const char* name, float v0);
 	void SetUniform4f(const char* name, float v0, float v1, float v2, float v3);
 
 private:

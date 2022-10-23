@@ -6,6 +6,7 @@
 #include "Renderer/VertexBufferLayout.h"
 #include "Renderer/IndexBuffer.h"
 #include "Renderer/Shader.h"
+#include "Renderer/Texture.h"
 
 #include "Tools/Colors.h"
 #include "Tools/Timer.h"
@@ -21,9 +22,9 @@ static GLFWwindow* CreateOpenGLContext()
 	//should be called for glDebugMessageCallback
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
@@ -48,18 +49,20 @@ int main()
 	GLFWwindow* window = CreateOpenGLContext();
 
 	{
+		//positions with texture coord 2 | 2
 		// Each "Line" for X , Y 
-		float positions[2 * 4] =
+		float positions[4 * 4] =
 		{
-			-0.5f , -0.5f, // 0 bottom_left 
-			 0.5f , -0.5f, // 1 bottom_right
-			 0.5f ,  0.5f, // 2 top_right
-			-0.5f ,  0.5f  // 3 top_left
+			-0.5f , -0.5f, 0.0f, 0.0f,		// 0 bottom_left 
+			 0.5f , -0.5f, 1.0f, 0.0f,		// 1 bottom_right
+			 0.5f ,  0.5f, 1.0f, 1.0f,		// 2 top_right
+			-0.5f ,  0.5f, 0.0f, 1.0f		// 3 top_left
 		};
 
 		VertexArray vertexArray;
-		VertexBuffer vertexBuffer(positions, 2 * 4 * sizeof(float));
+		VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
 		VertexBufferLayout layout;
+		layout.Push<float>(2);
 		layout.Push<float>(2);
 		vertexArray.AddBuffer(vertexBuffer, layout);
 
@@ -104,6 +107,13 @@ int main()
 		};
 		Timer timer;
 		timer.SetCallBackTimer(1.0f, changeColor);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		Texture texture("res/textures/test.png");
+		texture.Bind();
+		shader.SetUniform1i("u_Texture", 0); // to slot 0, if texture.Bind(2) => SetUniform1i("u_Texture", 2);
 
 		vertexArray.UnBind();
 		vertexBuffer.UnBind();

@@ -29,9 +29,18 @@ void Shader::UnBind() const
 	GL_CALL(glUseProgram(0));
 }
 
+void Shader::SetUniform1i(const char* name, int v0)
+{
+	GL_CALL(glUniform1i(GetUniformLocation(name), v0));
+}
+
+void Shader::SetUniform1f(const char* name, float v0)
+{
+	GL_CALL(glUniform1f(GetUniformLocation(name), v0));
+}
+
 void Shader::SetUniform4f(const char* name, float v0, float v1, float v2, float v3)
 {
-	
 	GL_CALL(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
@@ -122,7 +131,7 @@ int Shader::GetUniformLocation(const char* name)
 		return shaderFinder->second;
 	}
 
-	GL_CALL(int location = glGetUniformLocation(m_RendererID, name));
+	int location = glGetUniformLocation(m_RendererID, name);
 	if (location == -1)
 		std::cout << "Warning Uniform " << name << " does not exist!!\n";
 

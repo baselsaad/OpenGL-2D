@@ -36,7 +36,7 @@ public:
 	template<typename Type>
 	void Push(uint32_t count)
 	{
-		ASSERT(false);
+		static_assert(sizeof(Type) > 0, "Type is not Supported!!");
 	}
 
 	template<>
