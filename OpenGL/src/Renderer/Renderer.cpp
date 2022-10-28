@@ -10,8 +10,8 @@ Renderer::Renderer(GLFWwindow* window)
 
 void Renderer::Draw(const VertexArray& vb, const IndexBuffer& ib, const Shader& shader) const
 {
-	vb.Bind();
 	// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
+	vb.Bind();
 	ib.Bind();
 	glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
 }

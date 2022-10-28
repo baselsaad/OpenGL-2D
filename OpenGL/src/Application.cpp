@@ -119,8 +119,7 @@ int main()
 		vertexArray.UnBind();
 		vertexBuffer.UnBind();
 		indexBuffer.UnBind();
-		//shader.UnBind();
-		//texture.UnBind();
+		shader.UnBind();
 
 		Renderer renderer(window);
 
@@ -134,6 +133,7 @@ int main()
 				for (auto& tm : timer.CallbacksVec)
 					tm.Update();
 			}
+			
 			
 			renderer.Draw(vertexArray, indexBuffer, shader);
 			renderer.Swap();
