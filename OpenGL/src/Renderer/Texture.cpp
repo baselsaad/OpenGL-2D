@@ -50,3 +50,24 @@ void Texture::UnBind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Texture::EnableBlending()
+{
+	/**
+	 *  src alpha = 0
+	 *  dest = 1-0 = 1
+	 *
+	 *	R = (r-src * 0) + (r-dest * (1 - 0)) = r-dest
+	 *	G = (g-src * 0) + (g-dest * (1 - 0)) = g-dest
+	 *	B = (b-src * 0) + (b-dest * (1 - 0)) = b-dest
+	 *	A = (a-src * 0) + (a-dest * (1 - 0)) = a-dest
+	 */
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Texture::DisableBlending()
+{
+	glDisable(GL_BLEND);
+}

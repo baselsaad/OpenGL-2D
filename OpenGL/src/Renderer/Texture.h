@@ -12,6 +12,8 @@ public:
 	void Bind(uint32_t slot = 0) const;
 	void UnBind() const;
 
+	void EnableBlending();
+	void DisableBlending();
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }

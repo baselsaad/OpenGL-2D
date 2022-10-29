@@ -59,11 +59,13 @@ int main()
 			-0.5f ,  0.5f, 0.0f, 1.0f		// 3 top_left
 		};
 
-		VertexArray vertexArray;
-		VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
+		
 		VertexBufferLayout layout;
 		layout.Push<float>(2);
 		layout.Push<float>(2);
+
+		VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
+		VertexArray vertexArray;
 		vertexArray.AddBuffer(vertexBuffer, layout);
 
 		uint32_t indices[6] =
@@ -88,11 +90,14 @@ int main()
 		Colors::RGBA color = Colors::RGBA(Colors::ColorsArray.at(0));
 
 		// Shaders
+		const char* textureUniform = "u_Texture";
+		const char* colorUniform = "u_Color";
+
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
-		shader.SetUniform4f("u_Color", color.R, color.G, color.B, color.Alpha);
+		shader.SetUniform4f(colorUniform, color.R, color.G, color.B, color.Alpha);
 
-		Timer::Lambda changeColor = [&color, &increamnt, &shader]()
+		Timer::Lambda changeColor = [&color, &increamnt, &shader, &colorUniform]()
 		{
 			increamnt++;
 			if (increamnt >= Colors::ColorsArray.size())
@@ -103,24 +108,16 @@ int main()
 			color = Colors::ColorsArray.at(increamnt);
 
 			shader.Bind();
-			shader.SetUniform4f("u_Color", color.R, color.G, color.B, color.Alpha);
+			shader.SetUniform4f(colorUniform, color.R, color.G, color.B, color.Alpha);
 		};
 		Timer timer;
 		timer.SetCallBackTimer(1.0f, changeColor);
 
-		// special for png
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		Texture texture("res/textures/test.png");
+		Texture texture("res/textures/logo.png");
 		texture.Bind(0);
-		shader.SetUniform1i("u_Texture", 0); // to slot 0, if texture.Bind(2) => SetUniform1i("u_Texture", 2);
-
-		vertexArray.UnBind();
-		vertexBuffer.UnBind();
-		indexBuffer.UnBind();
-		shader.UnBind();
-
+		texture.EnableBlending();
+		shader.SetUniform1i(textureUniform, 0); // to slot 0, if texture.Bind(2) => SetUniform1i("u_Texture", 2);
+		
 		Renderer renderer(window);
 
 		/* Loop until the user closes the window */
@@ -144,4 +141,6 @@ int main()
 
 	// should be delete before glfwTerminate
 	glfwTerminate();
+
+	return 0;
 }
