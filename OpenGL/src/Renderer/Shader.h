@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "glm/glm.hpp"
+
 struct Shaders
 {
 	std::string VertexShader;
@@ -22,6 +24,7 @@ public:
 	void SetUniform1i(const char* name, int v0);
 	void SetUniform1f(const char* name, float v0);
 	void SetUniform4f(const char* name, float v0, float v1, float v2, float v3);
+	void SetUniformMat4f(const char* name, const glm::mat4& matrix);
 
 private:
 	Shaders ParaseShader(const std::string& filePath);
