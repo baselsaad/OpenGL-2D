@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "stb_image/stb_image.h"
-
+#include "Debug.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -12,9 +12,11 @@ Texture::Texture(const std::string& path)
 	, m_Height(0), m_Width(0)
 	, m_BitsPerPixel(0)
 {
-	// OpenGL expect our image to read from bottom right
+	// OpenGL expect the image to read from bottom right
 	stbi_set_flip_vertically_on_load(1);
+
 	m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BitsPerPixel, 4);
+	CHECK(m_LocalBuffer != nullptr, "Can not load the image, Check the path: " + m_FilePath);
 
 	glGenTextures(1, &m_RendererID);
 	glBindTexture(GL_TEXTURE_2D, m_RendererID);

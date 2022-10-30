@@ -5,6 +5,14 @@
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 
+
+#define CHECK(x, Msg)							\
+		if (!(x))									\
+		{											\
+			std::cout<< "\n"<< Msg << std::endl;	\
+			__debugbreak();							\
+		}
+
 // compatible with all OpenGL Versions
 #define GL_CALL(x)									\
 	GlClearErros();									\
