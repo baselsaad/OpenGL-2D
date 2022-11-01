@@ -41,11 +41,15 @@ int main()
 		// 4:3 Aspect ratio
 		// 2.0 * 2 = 4
 		// 1.5 * 2 = 3
-		glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+		glm::mat4 proj  = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
+		glm::mat4 view  = glm::translate(glm::mat4(1.0f), glm::vec3(-100.0f, 0.0f, 0.0f));
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 0.0f));
+
+		glm::mat4 mvp = proj * view * model;
 
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
-		shader.SetUniformMat4f(projUniform, proj);
+		shader.SetUniformMat4f(projUniform, mvp);
 
 		int increamnt = 0;
 		Colors::RGBA color = Colors::RGBA(Colors::ColorsArray.at(0));

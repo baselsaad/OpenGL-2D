@@ -13,10 +13,10 @@ namespace Defaults
 	// Each "Line" for X , Y 
 	static const float positions[PositionsSize] =
 	{
-		-0.5f , -0.5f, 0.0f, 0.0f,		// 0 bottom_left 
-		 0.5f , -0.5f, 1.0f, 0.0f,		// 1 bottom_right
-		 0.5f ,  0.5f, 1.0f, 1.0f,		// 2 top_right
-		-0.5f ,  0.5f, 0.0f, 1.0f		// 3 top_left
+		 100.0f, 100.0f, 0.0f, 0.0f,		// 0 bottom_left 
+		 200.0f, 100.0f, 1.0f, 0.0f,		// 1 bottom_right
+		 200.0f, 200.0f, 1.0f, 1.0f,		// 2 top_right
+		 100.0f, 200.0f, 0.0f, 1.0f		// 3 top_left
 	};
 
 	static const uint32_t indices[6] =
