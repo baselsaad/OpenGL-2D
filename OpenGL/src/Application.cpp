@@ -15,6 +15,31 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui\imgui.h"
+#include "imgui\imgui_impl_glfw_gl3.h"
+
+
+static Timer::Lambda ChangeColor(Shader& shader, const char* colorUniform)
+{
+	int increamnt = 0;
+	Colors::RGBA color = Colors::RGBA(Colors::ColorsArray.at(0));
+	Timer::Lambda changeColor = [&color, &increamnt, &shader, &colorUniform]()
+	{
+		increamnt++;
+		if (increamnt >= Colors::ColorsArray.size())
+		{
+			increamnt = 0;
+		}
+
+		color = Colors::ColorsArray.at(increamnt);
+
+		shader.Bind();
+		shader.SetUniform4f(colorUniform, color.R, color.G, color.B, color.Alpha);
+	};
+
+	return changeColor;
+}
+
 int main()
 {
 	GLFWwindow* window = CreateOpenGLContext();
@@ -41,40 +66,29 @@ int main()
 		// 4:3 Aspect ratio
 		// 2.0 * 2 = 4
 		// 1.5 * 2 = 3
-		glm::mat4 proj  = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
-		glm::mat4 view  = glm::translate(glm::mat4(1.0f), glm::vec3(-100.0f, 0.0f, 0.0f));
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200.0f, 200.0f, 0.0f));
+		glm::mat4 proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100.0f, 0.0f, 0.0f));
 
-		glm::mat4 mvp = proj * view * model;
 
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
-		shader.SetUniformMat4f(projUniform, mvp);
 
-		int increamnt = 0;
-		Colors::RGBA color = Colors::RGBA(Colors::ColorsArray.at(0));
-		Timer::Lambda changeColor = [&color, &increamnt, &shader, &colorUniform]()
-		{
-			increamnt++;
-			if (increamnt >= Colors::ColorsArray.size())
-			{
-				increamnt = 0;
-			}
+		ImGui::CreateContext();
+		ImGui_ImplGlfwGL3_Init(window, true);
+		ImGui::StyleColorsDark();
 
-			color = Colors::ColorsArray.at(increamnt);
+		glm::vec3 translation(200, 200, 0);
 
-			shader.Bind();
-			shader.SetUniform4f(colorUniform, color.R, color.G, color.B, color.Alpha);
-		};
+		// Timers 
 		Timer timer;
-		//timer.SetCallBackTimer(1.0f, changeColor);
+		timer.SetCallBackTimer(1.0f, ChangeColor(shader, colorUniform));
 
 		// Texture
 		Texture texture("res/textures/logo.png");
 		texture.Bind(0);
 		texture.EnableBlending();
 		shader.SetUniform1i(textureUniform, 0); // to slot 0, if texture.Bind(2) => SetUniform1i("u_Texture", 2);
-		
+
 		Renderer renderer(window);
 
 		/* Loop until the user closes the window */
@@ -85,17 +99,37 @@ int main()
 			// Update TimersCallback
 			{
 				for (auto& tm : timer.CallbacksVec)
+				{
 					tm.Update();
+				}
 			}
 			
+
+			// Imgui render
+			{
+				ImGui_ImplGlfwGL3_NewFrame();
+
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+				glm::mat4 mvp = proj * view * model;
+				shader.SetUniformMat4f(projUniform, mvp);
+
+				ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+				renderer.Draw(vertexArray, indexBuffer, shader);
+
+				ImGui::Render();
+				ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			}
+
 			
-			renderer.Draw(vertexArray, indexBuffer, shader);
 			renderer.Swap();
 		}
 
 	}
 
-
+	ImGui_ImplGlfwGL3_Shutdown();
+	ImGui::DestroyContext();
 	// should be delete before glfwTerminate
 	glfwTerminate();
 
