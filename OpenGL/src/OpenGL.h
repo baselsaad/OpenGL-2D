@@ -11,15 +11,15 @@ namespace Defaults
 
 	//positions with texture coord 2 | 2
 	// Each "Line" for X , Y 
-	static const float positions[PositionsSize] =
+	static constexpr float positions[PositionsSize] =
 	{
-		 100.0f, 100.0f, 0.0f, 0.0f,		// 0 bottom_left 
-		 200.0f, 100.0f, 1.0f, 0.0f,		// 1 bottom_right
-		 200.0f, 200.0f, 1.0f, 1.0f,		// 2 top_right
-		 100.0f, 200.0f, 0.0f, 1.0f		// 3 top_left
+		 -50.0f, -50.0f , 0.0f, 0.0f,		// 0 bottom_left 
+		  50.0f, -50.0f , 1.0f, 0.0f,		// 1 bottom_right
+		  50.0f,  50.0f , 1.0f, 1.0f,		// 2 top_right
+		 -50.0f,  50.0f , 0.0f, 1.0f		// 3 top_left
 	};
 
-	static const uint32_t indices[6] =
+	static constexpr uint32_t indices[6] =
 	{
 		0, 1, 2,
 		2, 3, 0
@@ -54,7 +54,7 @@ GLFWwindow* CreateOpenGLContext()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(960, 540, "OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -66,7 +66,8 @@ GLFWwindow* CreateOpenGLContext()
 	glfwSwapInterval(true); // vsync
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
 
-	glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+	// Set Callback error message
+	//glDebugMessageCallback(OpenGLMessageCallback, nullptr);
 	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
 
 	return window;
