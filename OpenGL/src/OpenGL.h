@@ -40,11 +40,7 @@ namespace Defaults
 GLFWwindow* CreateOpenGLContext()
 {
 	/* Initialize the library */
-	if (!glfwInit())
-	{
-		__debugbreak();
-		return nullptr;
-	}
+	CHECK(glfwInit(), "GLFW is not initialized!");
 
 	//should be called for glDebugMessageCallback
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -67,7 +63,7 @@ GLFWwindow* CreateOpenGLContext()
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
 
 	// Set Callback error message
-	//glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+	glDebugMessageCallback(OpenGLMessageCallback, nullptr);
 	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
 
 	return window;

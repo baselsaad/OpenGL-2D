@@ -5,8 +5,7 @@
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 
-
-#define CHECK(x, Msg)							\
+#define CHECK(x, Msg)								\
 		if (!(x))									\
 		{											\
 			std::cout<< "\n"<< Msg << std::endl;	\
@@ -54,7 +53,7 @@ static void OpenGLMessageCallback(
 		case GL_DEBUG_SEVERITY_HIGH:         std::cout << "CRITICAL: " << message << std::endl;		return;
 		case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "ERROR: " << message << std::endl;		return;
 		case GL_DEBUG_SEVERITY_LOW:          std::cout << "WARN: " << message << std::endl;			return;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "TRACE: " << message << std::endl;		return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: /*std::cout << "TRACE: " << message << std::endl;*/	return;
 	}
 
 	ASSERT(false);
