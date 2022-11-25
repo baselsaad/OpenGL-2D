@@ -47,6 +47,11 @@ int main()
 	GLFWwindow* window = CreateOpenGLContext();
 
 	{
+		//ImGui
+		ImGui::CreateContext();
+		ImGui_ImplGlfwGL3_Init(window, true);
+		ImGui::StyleColorsDark();
+
 		// VertextBuffer
 		VertexBufferLayout layout;
 		layout.Push<float>(2);
@@ -60,40 +65,26 @@ int main()
 		IndexBuffer indexBuffer(Defaults::indices, Defaults::IndicesSize);
 		indexBuffer.Bind();
 
-		// Shaders
+		// Shaders Uniforms
 		const char* textureUniform = "u_Texture";
 		const char* colorUniform = "u_Color";
 		const char* projUniform = "u_MVP";
 
-		// 4:3 Aspect ratio
-		// 2.0 * 2 = 4
-		// 1.5 * 2 = 3
-		glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-		// Render multiple objects using Uniform 
-		glm::vec3 translationA(200, 200, 0);
-		glm::vec3 translationB(100, 200, 0);
-
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
 
-		//ImGui
-		ImGui::CreateContext();
-		ImGui_ImplGlfwGL3_Init(window, true);
-		ImGui::StyleColorsDark();
+		Renderer renderer(window);
 
 		// Timers 
 		Timer timer;
 		timer.SetCallBackTimer(1.0f, ChangeColor(shader, colorUniform));
 
-		// Texture
-		Texture texture("res/textures/test.png");
-		texture.Bind(0);
-		texture.EnableBlending();
-		shader.SetUniform1i(textureUniform, 0); // to slot 0, if texture.Bind(2) => SetUniform1i("u_Texture", 2);
+		// Render multiple objects using Uniform 
+		glm::vec3 translationA(200, 200, 0);
+		glm::vec3 translationB(100, 200, 0);
+		glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-		Renderer renderer(window);
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -111,26 +102,16 @@ int main()
 			// Render
 			ImGui_ImplGlfwGL3_NewFrame();
 			{
-				// A 
+				if (ImGui::Button("Add Sprite"))
 				{
-					glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-					glm::mat4 mvp = proj * view * model;
-					shader.SetUniformMat4f(projUniform, mvp);
-					renderer.Draw(vertexArray, indexBuffer, shader);
+					renderer.AddNewQuad(shader);
 				}
 
-				// B
-				{
-					glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-					glm::mat4 mvp = proj * view * model;
-					shader.SetUniformMat4f(projUniform, mvp);
-					renderer.Draw(vertexArray, indexBuffer, shader);
-				}
+				//Basic Way to render multiaple objects (TODO: Batch rendering)
+				renderer.OnUpdate(vertexArray, indexBuffer, shader, projUniform);
 
-
-				ImGui::SliderFloat3("Translation A", &translationA.x, 0.0f, 960.0f);
-				ImGui::SliderFloat3("Translation B", &translationB.x, 0.0f, 960.0f);
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				ImGui::Text("Draw Calls %d", renderer.GetDrawCalls());
 
 				ImGui::Render();
 			}

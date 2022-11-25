@@ -1,12 +1,13 @@
 #pragma once
 #include<iostream>
 
+static const char* DEFAULT_SPRITE = "res/textures/test.png";
+
 class Texture
 {
 public:
 	Texture(const std::string& path);
 	~Texture();
-
 
 public:
 	void Bind(uint32_t slot = 0) const;

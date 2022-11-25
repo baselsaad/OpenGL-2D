@@ -17,18 +17,16 @@ void Timer::StartTimer() const
 
 void Timer::StopTimer() const
 {
-	m_End = std::chrono::high_resolution_clock::now();
-
-	if (m_IsTimerStarted)
-	{
-		m_Duration = m_End - m_Start;
-		m_ElapsedTime = m_Duration.count();
-		m_IsTimerStarted = false;
-	}
-	else
+	if (!m_IsTimerStarted)
 	{
 		m_ElapsedTime = 0.0f;
+		return;
 	}
+
+	m_End = std::chrono::high_resolution_clock::now();
+	m_Duration = m_End - m_Start;
+	m_ElapsedTime = m_Duration.count();
+	m_IsTimerStarted = false;
 }
 
 size_t Timer::SetCallBackTimer(float rate, const Lambda& callback)

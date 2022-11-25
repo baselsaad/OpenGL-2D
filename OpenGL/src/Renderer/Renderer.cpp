@@ -1,6 +1,10 @@
 #include "Renderer.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
+#include "Shader.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "imgui/imgui.h"
 
 
 Renderer::Renderer(GLFWwindow* window)
@@ -8,12 +12,33 @@ Renderer::Renderer(GLFWwindow* window)
 	m_WindowHandle = window;
 }
 
-void Renderer::Draw(const VertexArray& vb, const IndexBuffer& ib, const Shader& shader) const
+void Renderer::Draw(const VertexArray& vb, const IndexBuffer& ib) const
 {
 	// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
 	vb.Bind();
 	ib.Bind();
 	glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer::OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader, const char* projUniform)
+{
+	// 4:3 Aspect ratio
+	// 2.0 * 2 = 4
+	// 1.5 * 2 = 3
+	const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+	for (int i = 0; i < m_Quads.size(); i++)
+	{
+		m_Quads[i].BindTexture(shader);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Quads[i].Transform);
+		glm::mat4 mvp = proj * view * model;
+		shader.SetUniformMat4f(projUniform, mvp);
+		Draw(vb, ib);
+		
+		std::string labelName = "Translation-" + std::to_string(i + 1);
+		ImGui::SliderFloat3(labelName.c_str(), &m_Quads[i].Transform.x, 0.0f, 960.0f);
+	}
 }
 
 void Renderer::Clear() const
@@ -28,5 +53,11 @@ void Renderer::Swap() const
 
 	/* Poll for and process events */
 	glfwPollEvents();
+}
+
+void Renderer::AddNewQuad(Shader& shader)
+{
+	const Quad quad(DEFAULT_TRANSFORM);
+	m_Quads.push_back(quad);
 }
 
