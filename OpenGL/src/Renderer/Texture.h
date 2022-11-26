@@ -1,8 +1,6 @@
 #pragma once
 #include<iostream>
 
-static const char* DEFAULT_SPRITE = "res/textures/test.png";
-
 class Texture
 {
 public:
@@ -13,7 +11,7 @@ public:
 	void Bind(uint32_t slot = 0) const;
 	void UnBind() const;
 
-	void EnableBlending();
+	void EnableBlending() const;
 	void DisableBlending();
 
 	inline int GetWidth() const { return m_Width; }

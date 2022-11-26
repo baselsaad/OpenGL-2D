@@ -18,28 +18,27 @@ Texture::Texture(const std::string& path)
 	m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BitsPerPixel, 4);
 	CHECK(m_LocalBuffer != nullptr, "Can not load the image, Check the path: " + m_FilePath);
 
-	glGenTextures(1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	GL_CALL(glGenTextures(1, &m_RendererID));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+	
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer));
 	UnBind();
 
 	if (m_LocalBuffer)
 	{
 		stbi_image_free(m_LocalBuffer);
 	}
-
 }
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &m_RendererID);
+	GL_CALL(glDeleteTextures(1, &m_RendererID));
 }
 
 void Texture::Bind(uint32_t slot /*= 0*/) const
@@ -50,10 +49,10 @@ void Texture::Bind(uint32_t slot /*= 0*/) const
 
 void Texture::UnBind() const
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void Texture::EnableBlending()
+void Texture::EnableBlending() const
 {
 	/**
 	 *  src alpha = 0
@@ -65,11 +64,11 @@ void Texture::EnableBlending()
 	 *	A = (a-src * 0) + (a-dest * (1 - 0)) = a-dest
 	 */
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GL_CALL(glEnable(GL_BLEND));
+	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 }
 
 void Texture::DisableBlending()
 {
-	glDisable(GL_BLEND);
+	GL_CALL(glDisable(GL_BLEND));
 }

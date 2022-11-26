@@ -5,11 +5,12 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
 
 
 Renderer::Renderer(GLFWwindow* window)
+	: m_WindowHandle(window)
 {
-	m_WindowHandle = window;
 }
 
 void Renderer::Draw(const VertexArray& vb, const IndexBuffer& ib) const
@@ -30,13 +31,19 @@ void Renderer::OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& sh
 
 	for (int i = 0; i < m_Quads.size(); i++)
 	{
-		m_Quads[i].BindTexture(shader);
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Quads[i].Transform);
 		glm::mat4 mvp = proj * view * model;
 		shader.SetUniformMat4f(projUniform, mvp);
+
+		if (m_Quads[i].BindTexture())
+		{
+			shader.Bind();
+			shader.SetUniform1i("u_Texture", 0);
+		}
+
 		Draw(vb, ib);
-		
-		std::string labelName = "Translation-" + std::to_string(i + 1);
+
+		std::string labelName = "Sprite-" + std::to_string(i + 1);
 		ImGui::SliderFloat3(labelName.c_str(), &m_Quads[i].Transform.x, 0.0f, 960.0f);
 	}
 }
@@ -55,9 +62,7 @@ void Renderer::Swap() const
 	glfwPollEvents();
 }
 
-void Renderer::AddNewQuad(Shader& shader)
+void Renderer::AddNewQuad(Texture* texture)
 {
-	const Quad quad(DEFAULT_TRANSFORM);
-	m_Quads.push_back(quad);
+	m_Quads.emplace_back(DEFAULT_TRANSFORM, texture);
 }
-

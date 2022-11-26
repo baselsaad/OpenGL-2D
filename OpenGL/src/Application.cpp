@@ -66,25 +66,19 @@ int main()
 		indexBuffer.Bind();
 
 		// Shaders Uniforms
-		const char* textureUniform = "u_Texture";
-		const char* colorUniform = "u_Color";
 		const char* projUniform = "u_MVP";
-
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
+
+		int textureNumber = 1;
+		Texture testTexture("res/textures/test.png");
+		Texture logoTexture("res/textures/Logo.png");
 
 		Renderer renderer(window);
 
 		// Timers 
 		Timer timer;
-		timer.SetCallBackTimer(1.0f, ChangeColor(shader, colorUniform));
-
-		// Render multiple objects using Uniform 
-		glm::vec3 translationA(200, 200, 0);
-		glm::vec3 translationB(100, 200, 0);
-		glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
+		//timer.SetCallBackTimer(1.0f, ChangeColor(shader, colorUniform));
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
@@ -102,9 +96,13 @@ int main()
 			// Render
 			ImGui_ImplGlfwGL3_NewFrame();
 			{
+				ImGui::SliderInt("Which Texture? ", &textureNumber, 1, 2);
 				if (ImGui::Button("Add Sprite"))
 				{
-					renderer.AddNewQuad(shader);
+					if (textureNumber == 1)
+						renderer.AddNewQuad(&testTexture);
+					else
+						renderer.AddNewQuad(&logoTexture);
 				}
 
 				//Basic Way to render multiaple objects (TODO: Batch rendering)
@@ -116,7 +114,6 @@ int main()
 				ImGui::Render();
 			}
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
-
 
 			renderer.Swap();
 		}

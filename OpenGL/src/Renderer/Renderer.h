@@ -13,29 +13,38 @@ class IndexBuffer;
 class Shader;
 struct GLFWwindow;
 
-static constexpr glm::vec3 DEFAULT_TRANSFORM(200, 200, 0);
+static const glm::vec3 DEFAULT_TRANSFORM(200, 200, 0);
 
 struct Quad
 {
 	glm::vec3 Transform;
-	Texture Sprite;
+	Texture* Sprite;
+	bool HasTexture;
 
-	Quad(const glm::vec3& transform, const char* spritePath)
-		: Transform(transform)
-		, Sprite(Texture(spritePath))
+	Quad(const glm::vec3& transform, Texture* texture)
 	{
+		Transform = transform;
+
+		if (texture == nullptr)
+		{
+			Sprite = nullptr;
+			HasTexture = false;
+		}
+		else
+		{
+			Sprite = texture;
+			HasTexture = true;
+		}
 	}
 
-	Quad(const glm::vec3& transform)
-		: Quad(transform, DEFAULT_SPRITE)
+	bool BindTexture()
 	{
-	}
+		if (!HasTexture)
+			return false;
 
-	void BindTexture(Shader& shader)
-	{
-		Sprite.Bind();
-		Sprite.EnableBlending();
-		shader.SetUniform1i("u_Texture",0);
+		Sprite->Bind(0);
+		Sprite->EnableBlending();
+		return true;
 	}
 
 };
@@ -51,7 +60,7 @@ public:
 	void Clear() const;
 
 	void Swap() const;
-	void AddNewQuad(Shader& shader);
+	void AddNewQuad(Texture* texture);
 
 	inline int GetDrawCalls() const { return m_Quads.size(); }
 
