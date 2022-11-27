@@ -97,19 +97,18 @@ int main()
 			ImGui_ImplGlfwGL3_NewFrame();
 			{
 				ImGui::SliderInt("Which Texture? ", &textureNumber, 1, 2);
+
 				if (ImGui::Button("Add Sprite"))
 				{
-					if (textureNumber == 1)
-						renderer.AddNewQuad(&testTexture);
-					else
-						renderer.AddNewQuad(&logoTexture);
+					Texture* selectedTexture = textureNumber == 1 ? &testTexture : &logoTexture;
+					renderer.AddNewQuad(selectedTexture);
 				}
 
 				//Basic Way to render multiaple objects (TODO: Batch rendering)
 				renderer.OnUpdate(vertexArray, indexBuffer, shader, projUniform);
 
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-				ImGui::Text("Draw Calls %d", renderer.GetDrawCalls());
+				ImGui::Text("Draw Calls %llu", renderer.GetDrawCalls());
 
 				ImGui::Render();
 			}

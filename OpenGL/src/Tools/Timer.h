@@ -23,6 +23,7 @@ public:
 		CallbackTimersContainer(const float& rate, const Lambda& lambdaCallback)
 			: Rate(rate)
 			, CallBack(lambdaCallback)
+			, LastFrameTime(std::chrono::duration<float>())
 		{
 		}
 

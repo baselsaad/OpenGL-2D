@@ -62,7 +62,7 @@ public:
 	void Swap() const;
 	void AddNewQuad(Texture* texture);
 
-	inline int GetDrawCalls() const { return m_Quads.size(); }
+	inline size_t GetDrawCalls() const { return m_Quads.size(); }
 
 private:
 	GLFWwindow* m_WindowHandle;

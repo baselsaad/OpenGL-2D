@@ -29,23 +29,27 @@ void Renderer::OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& sh
 	const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-	for (int i = 0; i < m_Quads.size(); i++)
+	// Draw Quads
 	{
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Quads[i].Transform);
-		glm::mat4 mvp = proj * view * model;
-		shader.SetUniformMat4f(projUniform, mvp);
-
-		if (m_Quads[i].BindTexture())
+		for (int i = 0; i < m_Quads.size(); i++)
 		{
 			shader.Bind();
-			shader.SetUniform1i("u_Texture", 0);
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Quads[i].Transform);
+			glm::mat4 mvp = proj * view * model;
+			shader.SetUniformMat4f(projUniform, mvp);
+
+			if (m_Quads[i].BindTexture())
+			{
+				shader.SetUniform1i("u_Texture", 0);
+			}
+
+			Draw(vb, ib);
+
+			std::string labelName = "Sprite-" + std::to_string(i + 1);
+			ImGui::SliderFloat3(labelName.c_str(), &m_Quads[i].Transform.x, 0.0f, 960.0f);
 		}
-
-		Draw(vb, ib);
-
-		std::string labelName = "Sprite-" + std::to_string(i + 1);
-		ImGui::SliderFloat3(labelName.c_str(), &m_Quads[i].Transform.x, 0.0f, 960.0f);
 	}
+
 }
 
 void Renderer::Clear() const

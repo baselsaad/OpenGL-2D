@@ -59,7 +59,7 @@ GLFWwindow* CreateOpenGLContext()
 	}
 
 	glfwMakeContextCurrent(window);// Make the window's context current 
-	glfwSwapInterval(true); // vsync
+	glfwSwapInterval(false); // vsync
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
 
 	// Set Callback error message
