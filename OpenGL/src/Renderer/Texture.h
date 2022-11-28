@@ -16,6 +16,7 @@ public:
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }
+	inline const char* GetFilePath() const { return m_FilePath.c_str(); }
 
 private:
 	uint32_t m_RendererID;

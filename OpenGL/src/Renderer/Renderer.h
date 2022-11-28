@@ -19,27 +19,16 @@ struct Quad
 {
 	glm::vec3 Transform;
 	Texture* Sprite;
-	bool HasTexture;
 
 	Quad(const glm::vec3& transform, Texture* texture)
+		: Transform(transform)
+		, Sprite(texture)
 	{
-		Transform = transform;
-
-		if (texture == nullptr)
-		{
-			Sprite = nullptr;
-			HasTexture = false;
-		}
-		else
-		{
-			Sprite = texture;
-			HasTexture = true;
-		}
 	}
 
 	bool BindTexture()
 	{
-		if (!HasTexture)
+		if (Sprite == nullptr)
 			return false;
 
 		Sprite->Bind(0);
@@ -57,13 +46,13 @@ public:
 public:
 	void Draw(const VertexArray& vb, const IndexBuffer& ib) const;
 	void OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader, const char* projUniform);
-	void Clear() const;
 
+	void Clear() const;
 	void Swap() const;
+
 	void AddNewQuad(Texture* texture);
 
 	inline size_t GetDrawCalls() const { return m_Quads.size(); }
-
 private:
 	GLFWwindow* m_WindowHandle;
 	std::vector<Quad> m_Quads;

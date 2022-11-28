@@ -42,6 +42,7 @@ void Renderer::OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& sh
 			{
 				shader.SetUniform1i("u_Texture", 0);
 			}
+			
 
 			Draw(vb, ib);
 
