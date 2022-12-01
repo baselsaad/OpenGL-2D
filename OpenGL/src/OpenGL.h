@@ -19,7 +19,7 @@ namespace Defaults
 		 -50.0f,  50.0f , 0.0f, 1.0f		// 3 top_left
 	};
 
-	static constexpr uint32_t indices[6] =
+	static constexpr uint32_t indices[IndicesSize] =
 	{
 		0, 1, 2,
 		2, 3, 0
@@ -59,7 +59,7 @@ GLFWwindow* CreateOpenGLContext()
 	}
 
 	glfwMakeContextCurrent(window);// Make the window's context current 
-	glfwSwapInterval(false); // vsync
+	glfwSwapInterval(true); // vsync
 	GLenum state = glewInit();//glewInit should be called after a valid OpenGL rendering context has been created
 
 	// Set Callback error message

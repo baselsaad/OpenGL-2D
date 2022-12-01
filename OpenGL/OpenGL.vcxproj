@@ -635,6 +635,7 @@
     <None Include="Dependencies\glm\gtx\vector_angle.inl" />
     <None Include="Dependencies\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\glm\gtx\wrap.inl" />
+    <None Include="imgui.ini" />
     <None Include="res\shaders\Basic.shader" />
   </ItemGroup>
   <ItemGroup>

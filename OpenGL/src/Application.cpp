@@ -65,7 +65,7 @@ int main()
 		IndexBuffer indexBuffer(Defaults::indices, Defaults::IndicesSize);
 		indexBuffer.Bind();
 
-		// Shaders Uniforms
+		// Shaders
 		const char* projUniform = "u_MVP";
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
