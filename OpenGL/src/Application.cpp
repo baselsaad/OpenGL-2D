@@ -66,7 +66,7 @@ int main()
 		indexBuffer.Bind();
 
 		// Shaders
-		const char* projUniform = "u_MVP";
+		
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
 
@@ -105,7 +105,7 @@ int main()
 				}
 
 				//Basic Way to render multiaple objects (TODO: Batch rendering)
-				renderer.OnUpdate(vertexArray, indexBuffer, shader, projUniform);
+				renderer.OnUpdate(vertexArray, indexBuffer, shader);
 
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 				ImGui::Text("Draw Calls %llu", renderer.GetDrawCalls());

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <unordered_map>
-
+#include <GL/glew.h>
 #include "glm/glm.hpp"
 
 struct Shaders
@@ -10,6 +10,8 @@ struct Shaders
 	std::string VertexShader;
 	std::string FragmentShader;
 };
+
+
 
 class Shader
 {
@@ -31,11 +33,11 @@ private:
 	uint32_t CompileShader(uint32_t type, const std::string& source);
 	uint32_t CreateShader(const std::string& fragmentShader, const std::string& vertexShader);
 
-	int GetUniformLocation(const char* name);
+	GLint GetUniformLocation(const char* name);
 
 private:
 	uint32_t m_RendererID;
 	std::string m_FilePath;
-	std::unordered_map<std::string, int> m_ShaderCache;
+	std::unordered_map<std::string, GLint> m_ShaderCache;
 };
 
