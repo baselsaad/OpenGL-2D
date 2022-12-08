@@ -25,15 +25,15 @@ namespace Defaults
 		2, 3, 0
 	};
 
-/**************************************************
- *				3 * * * * * * * * * * * 2
- *				*					*   *
- *				* 			   *		*
- *				*  		  *				*
- * 				*  	  *					*
- * 				*  *					*
- * 				0 * * * * * * * * * * * 1
- **************************************************/
+	/**************************************************
+	 *				3 * * * * * * * * * * * 2
+	 *				*					*   *
+	 *				* 			   *		*
+	 *				*  		  *				*
+	 * 				*  	  *					*
+	 * 				*  *					*
+	 * 				0 * * * * * * * * * * * 1
+	 **************************************************/
 
 }
 
@@ -64,7 +64,11 @@ GLFWwindow* CreateOpenGLContext()
 
 	// Set Callback error message
 	glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-	std::cout << glGetString(GL_VERSION) << std::endl;// GPU driver and OpenGL Information
 
+	// GPU driver and OpenGL Information
+	std::cout << "OpenGL Info:" << std::endl;
+	std::cout << "  Vendor: " << glGetString(GL_VENDOR) << std::endl;
+	std::cout << "  Renderer: " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "  Version: " << glGetString(GL_VERSION) << std::endl;
 	return window;
 }

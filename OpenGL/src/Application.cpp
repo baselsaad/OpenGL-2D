@@ -65,11 +65,9 @@ int main()
 
 		//IndexBuffer
 		IndexBuffer indexBuffer(Defaults::indices, Defaults::IndicesSize);
-		indexBuffer.Bind();
 
 		// Shaders
 		Shader shader("res/shaders/Basic.shader");
-		shader.Bind();
 
 		int textureNumber = 1;
 		Texture testTexture("res/textures/test.png");
