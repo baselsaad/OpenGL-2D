@@ -2,6 +2,7 @@
 
 #include "Debug.h"
 
+
 #include <fstream>
 #include <sstream>
 
@@ -129,7 +130,7 @@ uint32_t Shader::CreateShader(const std::string& fragmentShader, const std::stri
 	return programm;
 }
 
-int Shader::GetUniformLocation(const char* name)
+GLint Shader::GetUniformLocation(const char* name)
 {
 	auto shaderFinder = m_ShaderCache.find(name);
 	if (shaderFinder != m_ShaderCache.end())
@@ -137,7 +138,7 @@ int Shader::GetUniformLocation(const char* name)
 		return shaderFinder->second;
 	}
 
-	int location = glGetUniformLocation(m_RendererID, name);
+	GLint location = glGetUniformLocation(m_RendererID, name);
 	if (location == -1)
 		std::cout << "Warning Uniform " << name << " does not exist!!\n";
 

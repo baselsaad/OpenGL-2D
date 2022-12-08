@@ -45,7 +45,7 @@ public:
 
 public:
 	void Draw(const VertexArray& vb, const IndexBuffer& ib) const;
-	void OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader, const char* projUniform);
+	void OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader);
 
 	void Clear() const;
 	void Swap() const;
