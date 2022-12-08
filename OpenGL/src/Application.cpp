@@ -52,12 +52,14 @@ int main()
 		ImGui_ImplGlfwGL3_Init(window, true);
 		ImGui::StyleColorsDark();
 
-		// VertextBuffer
+		// VertexBuffer
+		VertexBuffer vertexBuffer(Defaults::positions, Defaults::PositionsSize * sizeof(float));
+		
 		VertexBufferLayout layout;
 		layout.Push<float>(2);
 		layout.Push<float>(2);
 
-		VertexBuffer vertexBuffer(Defaults::positions, Defaults::PositionsSize * sizeof(float));
+		// VertexArray
 		VertexArray vertexArray;
 		vertexArray.AddBuffer(vertexBuffer, layout);
 
@@ -66,7 +68,6 @@ int main()
 		indexBuffer.Bind();
 
 		// Shaders
-		
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
 
