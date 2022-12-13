@@ -23,6 +23,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
 	const auto& elements = layout.GetElements();
 	uint32_t offset = 0;
 
+	// handle layout of vertexbuffer
 	for (uint32_t i = 0; i < elements.size(); i++)
 	{
 		const auto& element = elements[i];
