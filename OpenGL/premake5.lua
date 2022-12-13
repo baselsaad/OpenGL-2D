@@ -1,4 +1,4 @@
-project "OpenGL-Core"
+project "OpenGL"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
