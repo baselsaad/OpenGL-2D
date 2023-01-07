@@ -1,7 +1,7 @@
 -- Chess
 workspace "OpenGL"
 	architecture "x64"
-	startproject "OpenGL"
+	startproject "SandBox"
 
 	configurations
 	{
@@ -18,16 +18,39 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to OpenGL-Core
 IncludeDir = {}
-IncludeDir["GLFW"] = "Dependencies/GLFW/include"
-IncludeDir["GLEW"] = "Dependencies/GLEW/include"
-IncludeDir["glm"] =  "Dependencies/glm"
-IncludeDir["stb_image"] = "Dependencies/stb_image"
-IncludeDir["imgui"] = "Dependencies/imgui"
+IncludeDir["GLFW"] = "vendor/GLFW/include"
+IncludeDir["GLEW"] = "vendor/GLEW/include"
+IncludeDir["glm"] =  "vendor/glm"
+IncludeDir["stb_image"] = "vendor/stb_image"
+IncludeDir["imgui"] = "vendor/imgui"
+IncludeDir["spdlog"] = "vendor/spdlog/include"
 
 -- Projects
 group "Dependencies"
-	include "OpenGL/Dependencies/GLFW"
-	include "OpenGL/Dependencies/GLEW"
+	include "OpenGL/vendor/GLFW"
+	include "OpenGL/vendor/GLEW"
+    include "OpenGL/vendor/imgui"
 group ""
 
 include "OpenGL"
+include "SandBox"
+
+newaction {
+    trigger = "clean",
+    description = "Remove all binaries and intermediate binaries, and vs files.",
+    execute = function()
+        print("Removing binaries")
+        os.rmdir("./bin")
+		os.rmdir("./OpenGL/vendor/bin")
+        print("Removing intermediate binaries")
+        os.rmdir("./bin-int")
+		os.rmdir("./OpenGL/vendor/bin-int")
+        print("Removing project files")
+        os.rmdir("./.vs")
+        os.remove("**.sln")
+        os.remove("**.vcxproj")
+        os.remove("**.vcxproj.filters")
+        os.remove("**.vcxproj.user")
+        print("Done")
+    end
+}

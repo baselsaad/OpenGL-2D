@@ -1,6 +1,4 @@
 #pragma once
-#include<iostream>
-
 class Texture
 {
 public:
@@ -13,6 +11,7 @@ public:
 
 	void EnableBlending() const;
 	void DisableBlending();
+	void DisableTexturing();
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }

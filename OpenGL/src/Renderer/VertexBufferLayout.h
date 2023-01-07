@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Debug.h"
+#include "Utilities\Debug.h"
 
 struct VertexBufferElement
 {
@@ -17,7 +17,7 @@ struct VertexBufferElement
 			case GL_UNSIGNED_BYTE:	return 1;
 		}
 
-		ASSERT(false);
+		ASSERT(false, "");
 		return 0;
 	}
 

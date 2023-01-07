@@ -1,9 +1,9 @@
 #pragma once
-#include <iostream>
 
 class IndexBuffer
 {
 public:
+	IndexBuffer() = default;
 	IndexBuffer(const uint32_t* data, uint32_t count);
 	~IndexBuffer();
 

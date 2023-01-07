@@ -1,61 +1,32 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include "Texture.h"
-#include "Shader.h"
-#include "glm/vec3.hpp"
-
 class VertexArray;
 class IndexBuffer;
-class Shader;
-struct GLFWwindow;
-
-static const glm::vec3 DEFAULT_TRANSFORM(200, 200, 0);
-
-struct Quad
-{
-	glm::vec3 Transform;
-	Texture* Sprite;
-
-	Quad(const glm::vec3& transform, Texture* texture)
-		: Transform(transform)
-		, Sprite(texture)
-	{
-	}
-
-	bool BindTexture()
-	{
-		if (Sprite == nullptr)
-			return false;
-
-		Sprite->Bind(0);
-		Sprite->EnableBlending();
-		return true;
-	}
-
-};
+class Texture;
 
 class Renderer
 {
 public:
-	Renderer(GLFWwindow* window);
+	Renderer() = default;
+	Renderer(const Renderer&) = delete;
 
 public:
-	void Draw(const VertexArray& vb, const IndexBuffer& ib) const;
-	void OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader);
+	static void Init(const glm::vec2& viewport);
+	static void ShutDown();
 
-	void Clear() const;
-	void Swap() const;
+	static void DrawQuad(const glm::mat4& transform, const Texture* texture);
+	static void DrawQuad(const glm::mat4& transform, const Colors::RGBA& color);
+	static void DrawQuad(const glm::vec3& position,const glm::vec3& scale, const Texture* texture);
+	static void DrawQuad(const glm::vec3& position,const glm::vec3& scale, const Colors::RGBA& color);
 
-	void AddNewQuad(Texture* texture);
+	static void ResetStats();
+	static int GetDrawCalls();
 
-	inline size_t GetDrawCalls() const { return m_Quads.size(); }
+	static void UpdateViewport(int width, int height);
+	static const glm::vec2& GetViewport();
+	static const glm::mat4& GetProjectionView();
+
 private:
-	GLFWwindow* m_WindowHandle;
-	std::vector<Quad> m_Quads;
+	static void Draw(const VertexArray& vb, const IndexBuffer& ib);
 };
 
 

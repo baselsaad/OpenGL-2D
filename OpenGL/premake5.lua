@@ -1,5 +1,5 @@
 project "OpenGL"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -7,20 +7,23 @@ project "OpenGL"
 	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("../bin/Intermediate/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "pch.h"
+	pchsource "src/pch.cpp"
 
 	files
 	{
 		"src/**.h",
 		"src/**.cpp",
-		"Dependencies/stb_image/**.h",
-		"Dependencies/stb_image/**.cpp",
-		"Dependencies/glm/**.hpp",
-		"Dependencies/glm/**.inl",
-		"Dependencies/imgui/*.h",
-		"Dependencies/imgui/imgui_impl_glfw_gl3.cpp",
-		"Dependencies/imgui/imgui_demo.cpp",
-		"Dependencies/imgui/imgui_draw.cpp",
-		"Dependencies/imgui/imgui.cpp"
+
+		"vendor/stb_image/**.h",
+		"vendor/stb_image/**.cpp",
+
+		"vendor/glm/**.hpp",
+		"vendor/glm/**.inl",
+
+		"vendor/spdlog/inlcude/spdlog/spdlog.h",
+		"vendor/spdlog/inlcude/spdlog/fmt/ostr.h",
+		"vendor/spdlog/inlcude/spdlog/sinks/stdout_color_sinks.h"
 	}
 
 	defines
@@ -31,8 +34,9 @@ project "OpenGL"
 	includedirs
 	{
 		"src",
-		"Dependencies/",
-		"%{IncludeDir.imgui}",
+		"vendor/",
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLEW}",
 		"%{IncludeDir.glm}",
@@ -43,6 +47,7 @@ project "OpenGL"
 	{ 
 		"GLFW",
 		"GLEW",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -55,11 +60,11 @@ project "OpenGL"
 		}
 
 	filter "configurations:Debug"
-	 -- defines "DEBUG"
+	  	defines "DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-	 -- defines "RELEASE"
+	    defines "RELEASE"
 		runtime "Release"
 		optimize "on"

@@ -1,73 +1,154 @@
-#include "Renderer.h"
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw_gl3.h"
+#include "pch.h"
+#include "OpenGL-Core.h"
 
+#include "Defaults.h"
 
-Renderer::Renderer(GLFWwindow* window)
-	: m_WindowHandle(window)
+static int s_DrawCalls = 0;
+static struct RenderData* s_Data = nullptr;
+
+struct RenderData
 {
-}
+	VertexArray VertexArray;
+	VertexBuffer VetexBuffer;
+	VertexBufferLayout Layout;
+	IndexBuffer IndexBuffer;
 
-void Renderer::Draw(const VertexArray& vb, const IndexBuffer& ib) const
-{
-	// because we generate and bind the buffer outside the loop, OpenGL knows which buffer should be drawn
-	vb.Bind();
-	ib.Bind();
-	glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
-}
+	Shader TextureShader;
+	Shader ColorShader;
 
-void Renderer::OnUpdate(const VertexArray& vb, const IndexBuffer& ib, Shader& shader)
-{
-	// 4:3 Aspect ratio
-	// 2.0 * 2 = 4
-	// 1.5 * 2 = 3
-	const char* projUniform = "u_MVP";
-	const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	glm::vec2 Viewport;
+	glm::mat4 ProjectionView;
 
-	// Draw Quads
+	RenderData(int width, int height)
+		: VetexBuffer(Defaults::Positions, Defaults::PositionsSize)
+		, IndexBuffer(Defaults::Indices, Defaults::IndicesCount)
+		, TextureShader("res/shaders/Texture.shader")
+		, ColorShader("res/shaders/Color.shader")
+		, Viewport(width, height)
 	{
-		for (int i = 0; i < m_Quads.size(); i++)
-		{
-			shader.Bind();
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), m_Quads[i].Transform);
-			glm::mat4 mvp = proj * view * model;
-			shader.SetUniformMat4f(projUniform, mvp);
+		Layout.Push<float>(2);
+		Layout.Push<float>(2);
+		VertexArray.AddBuffer(VetexBuffer, Layout);
 
-			if (m_Quads[i].BindTexture())
-			{
-				shader.SetUniform1i("u_Texture", 0);
-			}
-
-			Draw(vb, ib);
-
-			std::string labelName = "Sprite-" + std::to_string(i + 1);
-			ImGui::SliderFloat3(labelName.c_str(), &m_Quads[i].Transform.x, 0.0f, 960.0f);
-		}
+		CalculateProjectionViewMatrix();
 	}
 
+	void CalculateProjectionViewMatrix()
+	{
+		const glm::mat4 proj = glm::ortho(0.0f, Viewport.x, 0.0f, Viewport.y, -1.0f, 1.0f);
+		ProjectionView = proj * glm::mat4(1.0f); // proj * view (Camera Pos(1.0f,1.0f))
+	}
+};
+
+void Renderer::Init(const glm::vec2& viewport)
+{
+	ASSERT(s_Data == nullptr, "Renderer should only be initialized once!!");
+	GLenum state = glewInit();
+	ASSERT(state == GLEW_OK, "glewInit should be called after a valid OpenGL rendering context has been created!!");
+
+#if DEBUG
+	glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+#endif
+
+	// Texturing
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	s_Data = new RenderData(viewport.x, viewport.y);
+	s_DrawCalls = 0;
 }
 
-void Renderer::Clear() const
+void Renderer::ShutDown()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	delete s_Data;
 }
 
-void Renderer::Swap() const
+void Renderer::DrawQuad(const glm::mat4& transform, const Texture* texture)
 {
-	/* Swap front and back buffers */
-	glfwSwapBuffers(m_WindowHandle);
+	ASSERT(s_Data , "Renderer should only be initialized !!");
 
-	/* Poll for and process events */
-	glfwPollEvents();
+	glm::mat4 mvp = s_Data->ProjectionView * transform;
+
+	s_Data->TextureShader.Bind();
+	texture->Bind(0);
+
+	s_Data->TextureShader.SetUniformMat4f("u_MVP", mvp);
+	s_Data->TextureShader.SetUniform1i("u_Texture", 0);
+
+	Draw(s_Data->VertexArray, s_Data->IndexBuffer);
 }
 
-void Renderer::AddNewQuad(Texture* texture)
+void Renderer::DrawQuad(const glm::mat4& transform, const Colors::RGBA& color)
 {
-	m_Quads.emplace_back(DEFAULT_TRANSFORM, texture);
+	ASSERT(s_Data , "Renderer should only be initialized !!");
+	glm::mat4 mvp = s_Data->ProjectionView * transform;
+
+	s_Data->ColorShader.Bind();
+	s_Data->ColorShader.SetUniformMat4f("u_MVP", mvp);
+	s_Data->ColorShader.SetUniform4f("u_Color", color);
+
+	Draw(s_Data->VertexArray, s_Data->IndexBuffer);
+}
+
+void Renderer::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const Texture* texture)
+{
+	glm::mat4 transform =
+		glm::translate(glm::mat4(1.0f), position)
+		* glm::mat4(1.0f)
+		* glm::scale(glm::mat4(1.0f), scale);
+
+	DrawQuad(transform, texture);
+}
+
+void Renderer::DrawQuad(const glm::vec3& position, const glm::vec3& scale, const Colors::RGBA& color)
+{
+	glm::mat4 transform =
+		glm::translate(glm::mat4(1.0f), position)
+		* glm::mat4(1.0f)
+		* glm::scale(glm::mat4(1.0f), scale);
+
+	DrawQuad(transform, color);
+}
+
+void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib)
+{
+	ib.Bind();
+	va.Bind();
+	glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
+	s_DrawCalls++;
+}
+
+int Renderer::GetDrawCalls()
+{
+	return s_DrawCalls;
+}
+
+void Renderer::ResetStats()
+{
+	s_DrawCalls = 0;
+}
+
+void Renderer::UpdateViewport(int width, int height)
+{
+	ASSERT(s_Data , "Renderer should only be initialized !!");
+
+	glViewport(0, 0, width, height);
+
+	s_Data->Viewport.x = width;
+	s_Data->Viewport.y = height;
+	s_Data->CalculateProjectionViewMatrix();
+}
+
+const glm::vec2& Renderer::GetViewport()
+{
+	ASSERT(s_Data , "Renderer should only be initialized !!");
+
+	return s_Data->Viewport;
+}
+
+const glm::mat4& Renderer::GetProjectionView()
+{
+	ASSERT(s_Data , "Renderer should only be initialized !!");
+
+	return s_Data->ProjectionView;
 }
